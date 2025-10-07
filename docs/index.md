@@ -7,4 +7,4 @@ layout: default
 {% post_url 2025-10-07-test-post %}
 
 
-[Sutton Barto Chapter 2](RL/sutton_barto_notes/chapter02-multi-armed-bandits)
+[Sutton Barto Chapter 2](RL/sutton_barto_notes/chapter02-multi-armed-bandits.html)
