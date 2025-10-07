@@ -5,17 +5,21 @@ title: "Chapter 2: Multi-Armed Bandits"
 
 
 Consider the following problem: 
-there is only 1 state with $k$ possible actions.
+there is 1 state and $$k$$ possible actions. 
+The reward for each action is given by some unknown probability
+distribution, $r(a)$.
 
 Let 
 - $$A_t\in[k]$$ the action taken at step $t$
-- $$R_t$$ the reward received
+- $$R_t \in \mathbf{R}_{\geq 0}$$ the reward received
 
-Let $$q_*\colon[k]\to\mathbf{R}$$ the expected reward for each action,
-$$
-    q_*(a) = \mathbb{E}[R_t \mid A_t = a]
-$$
-We do not have access to $$q_*(a)$$, but we can play, i.e. take actions
-and get rewards. Our goal is to estimate $$q_*(a)$$.
+Our goal is to maximize the total reward in $T$ steps,
+$$ \sum_{t=1}^{T}R_t $$. 
+Had we knonw the distributions $$\{r(a)\}_{a\in [k]}$$,
+our best policy (by expectation) would be to set $$A_t = a^*$$
+for all $$t\in [T]$$, where $$a^* = \arg\max \{r(a) a\in [k]\}$$.
 
-Let $$Q_t\colon[k]\to\mathbf{R}$$ be out estimation for $$q_*$$ at timestep $t$.
+Therefore, a good idea would be to estimate $$r(a)$$ by interacting
+with the environment.
+
+Let $$Q_t\colon[k]\to\mathbf{R}$$ be out estimation for $$r(a)$$ at timestep $$t$$.
