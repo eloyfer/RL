@@ -11,7 +11,8 @@ Let
 - $A_t\in[k]$ the action taken at step $t$
 - $R_t$ the reward received
 
-Let $q_*\colon[k]\to\R$ the expected reward for each action,
+Let $q_*\colon[k]\to\mathbf{R}$ the expected reward for each action,
 $$
     q_*(a) = \mathbb{E}[R_t \mid A_t = a]
 $$
+Let $Q_t\colon[k]\to\mathbf{R}$ be an estimation for $q_*$.
