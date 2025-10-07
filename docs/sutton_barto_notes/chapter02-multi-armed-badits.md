@@ -37,5 +37,5 @@ Q_t(a)
 =
 \frac
 {\sum_{i=1}^{t}R_t \cdot\mathbb{1}_{A_i=a} }
-{{\sum_{i=1}^{t}\mathbb{1}_{A_i=a} }}
+{\sum_{i=1}^{t}\mathbb{1}_{A_i=a}}
 ```
