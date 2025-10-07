@@ -32,13 +32,13 @@ Let $$Q_t\colon[k]\to\mathbb{R}$$ be our estimation of the means
 at step $$t$$.
 
 *sample-average methods*.
-```math
+\[
 Q_t(a)
 =
 \frac
 {\sum_{i=1}^{t}R_t \cdot\mathbb{1}_{A_i=a} }
 {\sum_{i=1}^{t}\mathbb{1}_{A_i=a}}
-```
+\]
 
 *$$\varepsilon$$-greedy method*. At each step, 
 - with probability $$1-\varepsilon$$, take the 
@@ -47,7 +47,17 @@ Q_t(a)
 
 As an algorithm:
 ```
-for a=1,...,k:
+For a=1,...,k:
     N(a) <- 0
     Q(a) <- 0
+
+For t=1,...,T:
+    Sample x uniformly from [0,1]
+    If x <= $$\varepsilon$$:
+        A <- Uniform({1,\dots,k})
+    Else:
+        A <- argmax Q(a)
+    R <- Bandit(A)
+    N(A) <- N(A) + 1
+    Q(A) <- Q(A) + $$\frac{1}{N(A)}$$(R- Q(A))
 ```
