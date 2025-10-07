@@ -5,36 +5,28 @@ title: "Chapter 2: Multi-Armed Bandits"
 
 # {{ page.title }}
 
-*Game Description*.
-There are $$k$$ levers ("bandits").
-If we pull lever $$i$$ we receive reward
-$$r \sim \rho_i$$, where $$\rho_i$$ 
-is some unknown probability distribution.
-We play for $$T$$ rounds, in each round we can pull one lever.
-
-*Formal Description*
-Let $$k\in \mathbf{N}$$ and $$\rho_1,\dots,\rho_k$$ 
-be probability distributions over $$\mathbf{R}$$.
-A game is a sequence of actions $$a_1,\dots,a_T\in [k]$$.
-Each action results in reward, $$r_t \sim \rho_{a_t}$$.
-The total reward is $$R = r_1+\dots+r_T$$.
-We seek to maximize $$\mathbf{E}[R]$$.
+In the $$k$$-arm bandit problem we have $$k$$
+bandits (slot-machines). In each there is a lever
+we can pull and receive reward. The reward is a random
+from an unknown distribution. Every bandit might have 
+a different distribution.
 
 Let 
-- $$A_t\in[k]$$ the action taken at step $t$
-- $$R_t \in \mathbf{R}_{\geq 0}$$ the reward received
+- $$\rho_i$$ the reward distribution of machine $$i\in[k]$$
+- $$A_t\in[k]$$ the action taken at step $$t$$
+- $$R_t \sim \rho_{A_t}$$ the reward received in step $$t$$
 
 Our goal is to maximize the total reward in $$T$$ steps,
-$$ \sum_{t=1}^{T}R_t $$. 
-Had we knonw the distributions $$\{r(a)\}_{a\in [k]}$$,
-a simple strategy would be to choose the best action
-$$a^* = \arg\max \{r(a) a\in [k]\}$$
+$$ R = \sum_{t=1}^{T}R_t $$. Notice that $$R$$ is a random variable,
+so let's say we seek to maximize the expected reward, $$\mathbb{E}[R]$$.
 
+Had we knonw the distributions $$\{\rho_i\}$$,
+the best strategy would be to choose the best action
+$$a^* = \arg\max \{\mathbb{E}[\rho_i] \colon a\in [k]\}$$ 
+for $$T$$ steps.
 
-our best policy (by expectation) would be to set $$A_t = a^*$$
-for all $$t\in [T]$$, where 
-
-Therefore, a good idea would be to estimate $$r(a)$$ by interacting
-with the environment.
-
-Let $$Q_t\colon[k]\to\mathbf{R}$$ be out estimation for $$r(a)$$ at timestep $$t$$.
+However, we do not have direct access to $$\{\rho_i\}$$ and cannot
+compute the means. Instead, we can interact with the bandits and
+estimate the distributions.
+Let $$Q_t\colon[k]\to\mathbf{R}$$ be our estimation of the distributions
+at step $$t$$.
