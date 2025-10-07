@@ -31,11 +31,23 @@ estimate the distributions.
 Let $$Q_t\colon[k]\to\mathbb{R}$$ be our estimation of the means
 at step $$t$$.
 
-One way to compute $$Q_t$$ is by the *sample-average* methods:
+*sample-average methods*.
 ```math
 Q_t(a)
 =
 \frac
 {\sum_{i=1}^{t}R_t \cdot\mathbb{1}_{A_i=a} }
 {\sum_{i=1}^{t}\mathbb{1}_{A_i=a}}
+```
+
+*$$\varepsilon$$-greedy method*. At each step, 
+- with probability $$1-\varepsilon$$, take the 
+"greedy" action $$A = \argmax Q_t$$ (exploit)
+- with probability $$\varepsilon$$ take a raondom (explore)
+
+As an algorithm:
+```
+for a=1,...,k:
+    N(a) <- 0
+    Q(a) <- 0
 ```
