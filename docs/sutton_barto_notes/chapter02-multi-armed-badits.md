@@ -32,6 +32,7 @@ Let $$Q_t\colon[k]\to\mathbb{R}$$ be our estimation of the means
 at step $$t$$.
 
 *sample-average methods*.
+
 \[
 Q_t(a)
 =
@@ -42,22 +43,26 @@ Q_t(a)
 
 *$$\varepsilon$$-greedy method*. At each step, 
 - with probability $$1-\varepsilon$$, take the 
-"greedy" action $$A = \argmax Q_t$$ (exploit)
+"greedy" action $$A = \arg\max Q_t$$ (exploit)
 - with probability $$\varepsilon$$ take a raondom (explore)
 
 As an algorithm:
 ```
+Parameters:
+- eps: exploration-exploitation balance
+- T: number of rounds
+
 For a=1,...,k:
     N(a) <- 0
     Q(a) <- 0
 
 For t=1,...,T:
     Sample x uniformly from [0,1]
-    If x <= $$\varepsilon$$:
+    If x <= eps:
         A <- Uniform({1,\dots,k})
     Else:
         A <- argmax Q(a)
     R <- Bandit(A)
     N(A) <- N(A) + 1
-    Q(A) <- Q(A) + $$\frac{1}{N(A)}$$(R- Q(A))
+    Q(A) <- Q(A) + (R - Q(A))/N(A)
 ```
