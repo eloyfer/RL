@@ -3,7 +3,7 @@ layout: default
 title: "Chapter 2: Multi-Armed Bandits"
 ---
 
-# {% page.title %}
+# {{ page.title }}
 
 
 Consider the following problem: 
