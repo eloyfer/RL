@@ -149,3 +149,65 @@ Q_{n} + \alpha_{n} \cdot (R_{n} - Q_n)
 \sum_{i=1}^{n}\alpha_{i}\prod_{j=i+1}^{n}(1-\alpha_{j}) R_{i}
 \end{align}
 $$
+
+
+## Optimistic Initial Values
+
+Setting the initial values $$Q_1(a)$$ high
+encourages exploration in the initial steps.
+If the actual reward are lower, then each action
+we visit lowers the estimation, leaving the less-explored
+actions with high estimates. This turns the initial eploitation
+steps into exploration steps. However, this trick is only
+effective at the beginning of the run, and does not
+encourage exploration in later stages.
+
+
+## Unbiased Constant Step Size
+
+Consider the following step size:
+
+$$
+\begin{align}
+    \beta_n &= \alpha / o_n
+    \\
+    o_n &= o_{n-1} + \alpha(1 - o_{n-1}), &&o_0 = 0
+\end{align}
+$$
+
+$$
+\begin{align}
+1 - \beta_n
+&=
+1 - \alpha / o_n
+\\
+&=
+\frac{o_n - \alpha}{o_n}
+\\
+&=
+\frac{o_{n-1} + \alpha(1 - o_{n-1}) - \alpha}{o_n}
+\\
+&=
+\frac{(1-\alpha)o_{n-1}}{o_{n-1} + \alpha(1 - o_{n-1})}
+\end{align}
+$$
+
+Then
+$$
+\begin{align}
+    Q_{n+1} 
+    &=
+    Q_{n} + \beta_n(R_n - Q_{n})
+    \\
+    &=
+    \prod_{j=1}^{n}(1-\beta_{j}) Q_{1}
+    +
+    \sum_{i=1}^{n}\beta_{i}\prod_{j=i+1}^{n}(1-\beta_{j}) R_{i}
+    \\
+    &=
+    \alpha^n
+    \prod_{j=1}^{n}(1-\beta_{j}) Q_{1}
+    +
+    \sum_{i=1}^{n}\beta_{i}\prod_{j=i+1}^{n}(1-\beta_{j}) R_{i}
+\end{align}
+$$
