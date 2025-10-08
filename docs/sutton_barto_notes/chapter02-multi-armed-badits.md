@@ -108,6 +108,7 @@ If the reward distribution is not stationary,
 i.e. it changes over time, it makes sense to give more weight
 to the more recent observations.
 The iterative update rule is then
+
 $$
 \begin{align}
 Q_{n+1}
@@ -119,6 +120,7 @@ Q_{n} + \alpha \cdot (R_{n} - Q_n)
 + \alpha \sum_{i=1}^{n}(1-\alpha)^{n-i} R_{i}
 \end{align}
 $$
+
 If $$\alpha \in (0,1]$$ is constant, then the weight of 
 previous rewards decays exponentially as
 $$(1-\alpha)^{n-i}$$.
@@ -128,6 +130,7 @@ $$(1-\alpha)^n + \sum_{i=1}^{n}\alpha(1-\alpha)^{n-i}= 1$$.
 
 
 If the step size $$\alpha = \alpha_n$$ is not constant, then
+
 $$
 \begin{align}
 Q_{n+1}
