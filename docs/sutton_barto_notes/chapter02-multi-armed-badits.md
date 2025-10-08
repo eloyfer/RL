@@ -20,24 +20,26 @@ Let
 Our goal is to maximize the total reward,
 $$ R = \sum_{t=1}^{T}R_t $$. 
 
-Since we do not know in advance how much each bandit
-is going to give us, we can start by choosing randomly
-and recording the rewards from each machine. This
-is called *exploration*.
+Let $$\rho_1,\dots,\rho_k$$ be the reward distributions
+of the bandits $$1,\dots,k$$. Then $$R_t$$ is a random variable
+sampled from $$\rho(A_t)$$.
+
+Initially we do not know what is the expected reward
+from each action. Therefore, we need to *explore*
+the environent by taking actions.
 
 Once we have an estimate of the reward from each machine,
-we can maximize our profits by choosing the one that
-yields the highest reward. This is called 
-*exploitation*.
+we can *exploit* our knowledge 
+by choosing the action that maxiizes the expected reward.
+<!-- 
+Let us discuss some methods to balance between 
+exploration and exploitation.
 
-One method to balance exploration and exploitation
-is the $$\epsilon$$-greedy:
+### $$\epsilon$$-Greedy -->
+
+$$\epsilon$$-greedy:
 - with probability $$\epsilon$$, choose a random action (explore)
 - with probability $$1 - \epsilon$$, choose the greedy action (exploit)
-
-Formally, let $$\rho_1,\dots,\rho_k$$ be the reward distributions
-of the bandits $$1,\dots,k$$. Then $$R_t$$ is a random variable
-sampled from $$\rho_{A_t}$$.
 
 Let $$Q_t\colon [k] \to \mathbb{R}$$ be our estimation of
 the expected rewards at step $$t$$. We want that
@@ -247,3 +249,145 @@ $$
 where $$c$$ is a parameter. 
 If $$t$$ is large while $$N(a)$$ is small, the action $$a$$
 is more likely to be selected.
+
+
+
+## Learning to Act -- Gradient Ascent
+
+So far we developed algorithms that learn the environment. 
+The relevant information was $$\mathbb{E}[\rho(a)]$$ for all
+$$a\in [k]$$.
+
+In contrast, here the algorithm learns how to act.
+Namely, it learns a distribution over actions, 
+$$\pi\colon [k]\to[0,1]$$,
+that seeks to maximize the expected reward:
+
+$$
+    \mathbb{E}[R_t]
+    =
+    \sum_{a} \pi(a) \rho(a)
+$$
+
+
+A convenient way to construct a distribution is using the softmax funciton:
+Define an initial value $$H_1(a) = 0$$ for every action $$a$$. Then let
+
+$$
+\pi_t(a)
+=
+\frac
+{e^{H_t(a)}}
+{\sum_{a'=1}^{k}e^{H_t(a')}}
+$$
+
+and choose an action randomly by sampling $$\Pr(A_t = a) = \pi(a)$$.
+
+Over time, we want to increase the probability of actions that
+yield high rewards. We can do it using gradient ascent:
+
+$$
+H_{t+1}(a)
+= 
+H_{t}(a)
++
+\alpha
+\frac
+{\partial \mathbb{E}[R_t]}
+{\partial H_t(a)}
+$$
+
+Let us compute the last term.
+Let $$\star = \frac{\partial \mathbb{E}[R_t]}{\partial H_t(a)}$$.
+
+$$
+\begin{align}
+\frac{\partial \mathbb{E}[R_t]}{\partial H_t(a)}
+&=
+\frac{\partial}{\partial H_t(a)} \sum_{a'\in [k]} \pi_t(a') \rho(a')
+\\
+&=
+\sum_{a'\in [k]} \rho(a') \frac{\partial}{\partial H_t(a)} \pi_t(a')  
+\end{align}
+\\
+$$
+
+Notice that $$\sum_{a'}\pi_t(a') = 1$$, so the derivative of the sum is $$0$$.
+Hence, we can add any constant to the sum. In addition we can multiply the
+$$a'$$-th term by $$\pi_t(a')/\pi_t(a')$$.
+
+$$
+\begin{align}
+\star
+&=
+\sum_{a'\in [k]} 
+(\rho(a') - B_t) 
+\frac{\partial}{\partial H_t(a)} \pi_t(a')
+\frac{\pi_t(a') }{\pi_t(a')}
+\\
+&=
+\sum_{a'\in [k]} 
+\pi_t(a')
+\left[
+    (\rho(a') - B_t) 
+    \frac{\partial}{\partial H_t(a)} \pi_t(a')
+    \frac{1}{\pi_t(a')}
+\right]
+% \\
+% &=
+% \mathbb{E}_{A_t\sim \pi_t}
+% \left[
+%     (\rho(A_t) - B_t) 
+%     \frac{\partial}{\partial H_t(a)} \pi_t(A_t)
+%     \frac{1}{\pi_t(A_t)}
+% \right]
+% \end{align}
+% \\
+$$
+
+It can be shown that 
+
+$$
+\frac{\partial}{\partial H_t(a)} \pi_t(a') \frac{1}{\pi_t(a')}
+=
+\mathbf{1}_{[a = a']} - \pi_t(a)
+$$
+
+Thus
+
+$$
+\begin{align}
+\star
+&=
+\sum_{a'\in [k]} 
+\pi_t(a')
+\left[
+    (\rho(a') - B_t) 
+    (\mathbf{1}_{[a = a']} - \pi_t(a))
+\right]
+\\
+&=
+-\pi_t(a) \sum_{a'\in [k]} \pi_t(a') (\rho(a') - B_t) 
++
+\pi_t(a)(\rho(a) - B_t) 
+\end{align}
+$$
+
+
+
+If the reward $$R_t$$ is high, we want to increase the probability of
+taking action $$a$$, namely to increase $$H_t(a)$$. But what counts
+as "high" reward?
+
+We can keep a record of the average reward we received so far,
+which can be computed exacly or incrementally with some choice
+of step size $$\alpha$$. 
+
+We update according to the rule
+
+$$
+\begin{align}
+H_{t+1}(A_t) 
+&= H_t(A_t) + \alpha (R_t - \overline{R}_t)(1- \pi_t(A_t))
+\end{align}
+$$
