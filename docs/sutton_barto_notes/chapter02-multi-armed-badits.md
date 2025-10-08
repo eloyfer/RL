@@ -122,3 +122,27 @@ $$
 If $$\alpha \in (0,1]$$ is constant, then the weight of 
 previous rewards decays exponentially as
 $$(1-\alpha)^{n-i}$$.
+
+This is called a $$weighted average$$, since the sum of weights
+$$(1-\alpha)^n + \sum_{i=1}^{n}\alpha(1-\alpha)^{n-i}= 1$$. 
+
+
+If the step size $$\alpha = \alpha_n$$ is not constant, then
+$$
+\begin{align}
+Q_{n+1}
+&=
+Q_{n} + \alpha_{n} \cdot (R_{n} - Q_n)
+\\
+&=
+\alpha_{n} R_{n} + (1-\alpha_{n}) Q_n
+\\
+&=
+\alpha_{n} R_{n} + (1-\alpha_{n}) (\alpha_{n-1} R_{n-1} + (1-\alpha_{n-1})Q_{n-1})
+\\
+&=
+\prod_{j=1}^{n}(1-\alpha_{j}) Q_{1}
++
+\sum_{i=1}^{n}\alpha_{i}\prod_{j=i+1}^{n}(1-\alpha_{j}) R_{i}
+\end{align}
+$$
