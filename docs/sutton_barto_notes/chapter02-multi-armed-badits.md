@@ -163,9 +163,7 @@ effective at the beginning of the run, and does not
 encourage exploration in later stages.
 
 
-## Unbiased Constant Step Size
-
-Consider the following step size:
+## Unbiased Step Size
 
 The constant step size induces *bias*, which is our initial value
 $$Q_{1}$$, even though its weight is decreasing exponentially: 
@@ -199,6 +197,7 @@ $$
 $$
 
 Then
+
 $$
 \begin{align}
     Q_{n+1} 
@@ -227,3 +226,24 @@ $$
 $$
 
 and indeed there is no bias.
+
+
+## Upper-Confidence-Bound Action Selection
+
+Another exploration rule is one that encourages exploration
+of less-explored actions/states. For example,
+
+$$
+    A_t
+    =
+    \arg\max_{a}
+    \left[
+        Q_t(a)
+        + 
+        c\sqrt{\frac{\ln t}{N(a)}}
+    \right]
+$$
+
+where $$c$$ is a parameter. 
+If $$t$$ is large while $$N(a)$$ is small, the action $$a$$
+is more likely to be selected.
