@@ -45,22 +45,39 @@ $$\lim_{t\to\infty}Q_t(a) = \mathbb{E}[\rho_a] $$.
 
 *sample-average methods*.
 
+$$
 \begin{equation}
 Q_t(a)
 =
 \frac
-{\sum_{i=1}^{t}R_t \cdot\mathbb{1}_{A_i=a} }
+{\sum_{i=1}^{t}R_i \cdot\mathbb{1}_{A_i=a} }
 {\sum_{i=1}^{t}\mathbb{1}_{A_i=a}}
 \end{equation}
+$$
+
 This can be computed iteratively. For simplicity, assume
 we have only one action. Then
-\(
-Q_t(a)
-=
+
+$$
+\begin{align}
+Q_t
+&=
 \frac
-{\sum_{i=1}^{t}R_t}
+{\sum_{i=1}^{t}R_i}
 {t}
-\)
+\\
+&=
+\frac
+{R_t + (t-1)Q_{t-1}}
+{t}
+\\
+&=
+Q_{t-1}
++
+\frac{1}{t}
+(R_t - Q_{t-1})
+\end{align}
+$$
 
 
 
