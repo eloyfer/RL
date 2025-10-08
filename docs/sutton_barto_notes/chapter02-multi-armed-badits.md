@@ -175,6 +175,9 @@ $$
 \end{align}
 $$
 
+We want to express $$Q_n$$ as a weighted sum of past rewards.
+Observe that
+
 $$
 \begin{align}
 1 - \beta_n
@@ -185,10 +188,7 @@ $$
 \frac{o_n - \alpha}{o_n}
 \\
 &=
-\frac{o_{n-1} + \alpha(1 - o_{n-1}) - \alpha}{o_n}
-\\
-&=
-\frac{(1-\alpha)o_{n-1}}{o_{n-1} + \alpha(1 - o_{n-1})}
+\frac{(1-\alpha)o_{n-1}}{o_n}
 \end{align}
 $$
 
@@ -205,9 +205,12 @@ $$
     \sum_{i=1}^{n}\beta_{i}\prod_{j=i+1}^{n}(1-\beta_{j}) R_{i}
     \\
     &=
-    \alpha^n
-    \prod_{j=1}^{n}(1-\beta_{j}) Q_{1}
+    (1-\alpha)^{n}\frac{o_0}{o_n}
+    Q_{1}
     +
-    \sum_{i=1}^{n}\beta_{i}\prod_{j=i+1}^{n}(1-\beta_{j}) R_{i}
+    \sum_{i=1}^{n}
+    \frac{\alpha}{o_i}
+    (1-\alpha)^{n-i} \frac{o_{n-i}}{o_n}
+    R_{i}
 \end{align}
 $$
