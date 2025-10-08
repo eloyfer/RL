@@ -14,8 +14,9 @@ a different distribution.
 We are playing for $$T$$ rounds, in each round we
 choose one bandit and pull its lever.
 Let 
-- $$A_t$$ - the action taken at step $$t$$
-- $$R_t$$ - the reward received in step $$t$$
+- $$A_t$$ - the action taken at step $$t=1,\dots,T$$.
+- $$R_t$$ - the reward received in step $$t$$.
+
 Our goal is to maximize the total reward,
 $$ R = \sum_{t=1}^{T}R_t $$. 
 
@@ -39,17 +40,18 @@ of the bandits $$1,\dots,k$$. Then $$R_t$$ is a random variable
 sampled from $$\rho_{A_t}$$.
 
 Let $$Q_t\colon [k] \to \mathbb{R}$$ be our estimation of
-the reward distributions at step $$t$$. We want that
+the expected rewards at step $$t$$. We want that
 $$\lim_{t\to\infty}Q_t(a) = \mathbb{E}[\rho_a] $$.
 
 *sample-average methods*.
-\[
+
+\(
 Q_t(a)
 =
 \frac
 {\sum_{i=1}^{t}R_t \cdot\mathbb{1}_{A_i=a} }
 {\sum_{i=1}^{t}\mathbb{1}_{A_i=a}}
-\]
+\)
 This can be computed iteratively.
 
 As an algorithm:
