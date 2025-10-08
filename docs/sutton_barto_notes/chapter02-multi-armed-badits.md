@@ -309,7 +309,6 @@ $$
 &=
 \sum_{a'\in [k]} \rho(a') \frac{\partial}{\partial H_t(a)} \pi_t(a')  
 \end{align}
-\\
 $$
 
 Notice that $$\sum_{a'}\pi_t(a') = 1$$, so the derivative of the sum is $$0$$.
@@ -333,16 +332,7 @@ $$
     \frac{\partial}{\partial H_t(a)} \pi_t(a')
     \frac{1}{\pi_t(a')}
 \right]
-% \\
-% &=
-% \mathbb{E}_{A_t\sim \pi_t}
-% \left[
-%     (\rho(A_t) - B_t) 
-%     \frac{\partial}{\partial H_t(a)} \pi_t(A_t)
-%     \frac{1}{\pi_t(A_t)}
-% \right]
-% \end{align}
-% \\
+\end{align}
 $$
 
 It can be shown that 
