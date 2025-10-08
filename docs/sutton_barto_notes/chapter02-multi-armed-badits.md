@@ -11,28 +11,38 @@ we can pull and receive reward. The reward is a random variable
 from an unknown distribution. Every bandit might have 
 a different distribution.
 
+We are playing for $$T$$ rounds, in each round we
+choose one bandit and pull its lever.
 Let 
-- $$\rho_i$$ - the reward distribution of machine $$i\in[k]$$
-- $$A_t\in[k]$$ - the action taken at step $$t$$
-- $$R_t \sim \rho_{A_t}$$ - the reward received in step $$t$$
+- $$A_t$$ - the action taken at step $$t$$
+- $$R_t$$ - the reward received in step $$t$$
+Our goal is to maximize the total reward,
+$$ R = \sum_{t=1}^{T}R_t $$. 
 
-Our goal is to maximize the total reward in $$T$$ steps,
-$$ R = \sum_{t=1}^{T}R_t $$. Notice that $$R$$ is a random variable,
-so let's say we seek to maximize the expected reward, $$\mathbb{E}[R]$$.
+Since we do not know in advance how much each bandit
+is going to give us, we can start by choosing randomly
+and recording the rewards from each machine. This
+is called *exploration*.
 
-Had we knonw the distributions $$\{\rho_i\}$$,
-the best strategy would be to choose the best action
-$$a^* = \arg\max \{\mathbb{E}[\rho_a] \colon a\in [k]\}$$ 
-for $$T$$ steps.
+Once we have an estimate of the reward from each machine,
+we can maximize our profits by choosing the one that
+yields the highest reward. This is called 
+*exploitation*.
 
-However, we do not have direct access to $$\{\rho_i\}$$ and cannot
-compute the means. Instead, we can interact with the bandits and
-estimate the distributions.
-Let $$Q_t\colon[k]\to\mathbb{R}$$ be our estimation of the means
-at step $$t$$.
+One method to balance exploration and exploitation
+is the $$\epsilon$$-greedy:
+- with probability $$\epsilon$$, choose a random action (explore)
+- with probability $$1 - \epsilon$$, choose the greedy action (exploit)
+
+Formally, let $$\rho_1,\dots,\rho_k$$ be the reward distributions
+of the bandits $$1,\dots,k$$. Then $$R_t$$ is a random variable
+sampled from $$\rho_{A_t}$$.
+
+Let $$Q_t\colon [k] \to \mathbb{R}$$ be our estimation of
+the reward distributions at step $$t$$. We want that
+$$\lim_{t\to\infty}Q_t(a) = \mathbb{E}[\rho_a] $$.
 
 *sample-average methods*.
-
 \[
 Q_t(a)
 =
@@ -40,11 +50,7 @@ Q_t(a)
 {\sum_{i=1}^{t}R_t \cdot\mathbb{1}_{A_i=a} }
 {\sum_{i=1}^{t}\mathbb{1}_{A_i=a}}
 \]
-
-*$$\varepsilon$$-greedy method*. At each step, 
-- with probability $$1-\varepsilon$$, take the 
-"greedy" action $$A = \arg\max Q_t$$ (exploit)
-- with probability $$\varepsilon$$ take a raondom (explore)
+This can be computed iteratively.
 
 As an algorithm:
 ```
@@ -57,9 +63,9 @@ For a=1,...,k:
     Q(a) <- 0
 
 For t=1,...,T:
-    Sample x uniformly from [0,1]
+    x <- Uniform([0,1])
     If x <= eps:
-        A <- Uniform({1,\dots,k})
+        A <- Uniform({1,...,k})
     Else:
         A <- argmax Q(a)
     R <- Bandit(A)
