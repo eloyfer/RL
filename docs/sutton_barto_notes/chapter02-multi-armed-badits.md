@@ -167,6 +167,12 @@ encourage exploration in later stages.
 
 Consider the following step size:
 
+The constant step size induces *bias*, which is our initial value
+$$Q_{1}$$, even though its weight is decreasing exponentially: 
+$$(1-\alpha)^{n-1}$$.
+
+Here is a varying step size that gets rid of the bias:
+
 $$
 \begin{align}
     \beta_n &= \alpha / o_n
@@ -210,7 +216,14 @@ $$
     +
     \sum_{i=1}^{n}
     \frac{\alpha}{o_i}
-    (1-\alpha)^{n-i} \frac{o_{n-i}}{o_n}
+    (1-\alpha)^{n-i} \frac{o_{i}}{o_{n}}
     R_{i}
+    \\
+    &=
+    \frac{1}{o_{n}}
+    \sum_{i=1}^{n}
+    \alpha(1-\alpha)^{n-i}R_{i}
 \end{align}
 $$
+
+and indeed there is no bias.
