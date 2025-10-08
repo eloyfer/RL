@@ -82,27 +82,43 @@ $$
 In summary, we developed the following simple algorithm:
 ```
 Parameters:
-- ε: exploration-exploitation balance
+- eps: exploration-exploitation balance
 - T: number of rounds
 
 For a=1,...,k:
-    N(a) ← 0
-    Q(a) ← 0
+    N(a) <- 0
+    Q(a) <- 0
 
 For t=1,...,T:
-    x ← Uniform([0,1])
-    If x <= ε:
-        A ← Uniform({1,...,k})
+    x <- Uniform([0,1])
+    If x <= eps:
+        A <- Uniform({1,...,k})
     Else:
-        A ← argmax Q(a)
-    R ← Bandit(A)
-    N(A) ← N(A) + 1
-    Q(A) ← Q(A) + (R - Q(A))/N(A)
+        A <- argmax Q(a)
+    R <- Bandit(A)
+    N(A) <- N(A) + 1
+    Q(A) <- Q(A) + (R - Q(A))/N(A)
 ```
+
 
 
 ## Non-Stationary Problems
 
 If the reward distribution is not stationary, 
 i.e. it changes over time, it makes sense to give more weight
-to the more recent observations. Let $$\rho_$$
+to the more recent observations.
+The iterative update rule is then
+$$
+\begin{align}
+Q_{n+1}
+&=
+Q_{n} + \alpha \cdot (R_{n} - Q_n)
+\\
+&=
+(1-\alpha)^{n}Q_{1}
++ \alpha \sum_{i=1}^{n}(1-\alpha)^{n-i} R_{i}
+\end{align}
+$$
+If $$\alpha \in (0,1]$$ is constant, then the weight of 
+previous rewards decays exponentially as
+$$(1-\alpha)^{n-i}$$.
