@@ -82,20 +82,27 @@ $$
 In summary, we developed the following simple algorithm:
 ```
 Parameters:
-- eps: exploration-exploitation balance
+- ε: exploration-exploitation balance
 - T: number of rounds
 
 For a=1,...,k:
-    N(a) <- 0
-    Q(a) <- 0
+    N(a) ← 0
+    Q(a) ← 0
 
 For t=1,...,T:
-    x <- Uniform([0,1])
-    If x <= eps:
-        A <- Uniform({1,...,k})
+    x ← Uniform([0,1])
+    If x <= ε:
+        A ← Uniform({1,...,k})
     Else:
-        A <- argmax Q(a)
-    R <- Bandit(A)
-    N(A) <- N(A) + 1
-    Q(A) <- Q(A) + (R - Q(A))/N(A)
+        A ← argmax Q(a)
+    R ← Bandit(A)
+    N(A) ← N(A) + 1
+    Q(A) ← Q(A) + (R - Q(A))/N(A)
 ```
+
+
+## Non-Stationary Problems
+
+If the reward distribution is not stationary, 
+i.e. it changes over time, it makes sense to give more weight
+to the more recent observations. Let $$\rho_$$
