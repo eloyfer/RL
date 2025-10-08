@@ -79,10 +79,8 @@ Q_{t-1}
 \end{align}
 $$
 
-
-
-As an algorithm:
-```
+In summary, we developed the following algorithm:
+<div>
 Parameters:
 - eps: exploration-exploitation balance
 - T: number of rounds
@@ -100,4 +98,4 @@ For t=1,...,T:
     R <- Bandit(A)
     N(A) <- N(A) + 1
     Q(A) <- Q(A) + (R - Q(A))/N(A)
-```
+</div>
