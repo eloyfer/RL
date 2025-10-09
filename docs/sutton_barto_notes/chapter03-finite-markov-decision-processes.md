@@ -345,3 +345,13 @@ $$
     [r + \gamma\cdot \max_{a'}q_{*}(s',a') ]
 \end{align}
 $$
+
+The Bellman optimality equation has a unique solution.
+If the dynamics of the MDP are known, i.e. $p(s',r\mid s,a)$,
+it is possible to find the solution. 
+However, the equations are non-linear.
+
+Once a solution is found, it is easy to define an optimal policy
+$\pi_{*}$, by taking a greedy step from every state.
+That is, choosing an action $a$ which maximizes
+the optimality equation.
