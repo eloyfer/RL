@@ -5,24 +5,24 @@ title: "Chapter 2: Multi-Armed Bandits"
 
 # {{ page.title }}
 
-In the $$k$$-armed bandit problem we have $$k$$
+In the $k$-armed bandit problem we have $k$
 bandits (slot-machines), each with a lever
 we can pull and receive reward. The reward is a random variable
 from an unknown distribution. Every bandit might have 
 a different distribution.
 
-We are playing for $$T$$ rounds, in each round we
+We are playing for $T$ rounds, in each round we
 choose one bandit and pull its lever.
 Let 
-- $$A_t$$ - the action taken at step $$t=1,\dots,T$$.
-- $$R_t$$ - the reward received in step $$t$$.
+- $A_t$ - the action taken at step $t=1,\dots,T$.
+- $R_t$ - the reward received in step $t$.
 
 Our goal is to maximize the total reward,
-$$ R = \sum_{t=1}^{T}R_t $$. 
+$ R = \sum_{t=1}^{T}R_t $. 
 
-Let $$\rho_1,\dots,\rho_k$$ be the reward distributions
-of the bandits $$1,\dots,k$$. Then $$R_t$$ is a random variable
-sampled from $$\rho(A_t)$$.
+Let $\rho_1,\dots,\rho_k$ be the reward distributions
+of the bandits $1,\dots,k$. Then $R_t$ is a random variable
+sampled from $\rho(A_t)$.
 
 Initially we do not know what is the expected reward
 from each action. Therefore, we need to *explore*
@@ -31,19 +31,15 @@ the environent by taking actions.
 Once we have an estimate of the reward from each machine,
 we can *exploit* our knowledge 
 by choosing the action that maxiizes the expected reward.
-<!-- 
-Let us discuss some methods to balance between 
-exploration and exploitation.
 
-### $$\epsilon$$-Greedy -->
 
-$$\epsilon$$-greedy:
-- with probability $$\epsilon$$, choose a random action (explore)
-- with probability $$1 - \epsilon$$, choose the greedy action (exploit)
+$\epsilon$-greedy:
+- with probability $\epsilon$, choose a random action (explore)
+- with probability $1 - \epsilon$, choose the greedy action (exploit)
 
-Let $$Q_t\colon [k] \to \mathbb{R}$$ be our estimation of
-the expected rewards at step $$t$$. We want that
-$$\lim_{t\to\infty}Q_t(a) = \mathbb{E}[\rho_a] $$.
+Let $Q_t\colon [k] \to \mathbb{R}$ be our estimation of
+the expected rewards at step $t$. We want that
+$\lim_{t\to\infty}Q_t(a) = \EE[\rho_a] $.
 
 *sample-average methods*.
 
@@ -123,15 +119,15 @@ Q_{n} + \alpha \cdot (R_{n} - Q_n)
 \end{align}
 $$
 
-If $$\alpha \in (0,1]$$ is constant, then the weight of 
+If $\alpha \in (0,1]$ is constant, then the weight of 
 previous rewards decays exponentially as
-$$(1-\alpha)^{n-i}$$.
+$(1-\alpha)^{n-i}$.
 
-This is called a $$weighted average$$, since the sum of weights
-$$(1-\alpha)^n + \sum_{i=1}^{n}\alpha(1-\alpha)^{n-i}= 1$$. 
+This is called a *weighted average*, since the sum of weights
+$(1-\alpha)^n + \sum_{i=1}^{n}\alpha(1-\alpha)^{n-i}= 1$. 
 
 
-If the step size $$\alpha = \alpha_n$$ is not constant, then
+If the step size $\alpha = \alpha_n$ is not constant, then
 
 $$
 \begin{align}
@@ -155,7 +151,7 @@ $$
 
 ## Optimistic Initial Values
 
-Setting the initial values $$Q_1(a)$$ high
+Setting the initial values $Q_1(a)$ high
 encourages exploration in the initial steps.
 If the actual reward are lower, then each action
 we visit lowers the estimation, leaving the less-explored
@@ -168,8 +164,8 @@ encourage exploration in later stages.
 ## Unbiased Step Size
 
 The constant step size induces *bias*, which is our initial value
-$$Q_{1}$$, even though its weight is decreasing exponentially: 
-$$(1-\alpha)^{n-1}$$.
+$Q_{1}$, even though its weight is decreasing exponentially: 
+$(1-\alpha)^{n-1}$.
 
 Here is a varying step size that gets rid of the bias:
 
@@ -181,7 +177,7 @@ $$
 \end{align}
 $$
 
-We want to express $$Q_n$$ as a weighted sum of past rewards.
+We want to express $Q_n$ as a weighted sum of past rewards.
 Observe that
 
 $$
@@ -246,8 +242,8 @@ $$
     \right]
 $$
 
-where $$c$$ is a parameter. 
-If $$t$$ is large while $$N(a)$$ is small, the action $$a$$
+where $c$ is a parameter. 
+If $t$ is large while $N(a)$ is small, the action $a$
 is more likely to be selected.
 
 
@@ -255,23 +251,28 @@ is more likely to be selected.
 ## Learning to Act -- Gradient Ascent
 
 So far we developed algorithms that learn the environment. 
-The relevant information was $$\mathbb{E}[\rho(a)]$$ for all
-$$a\in [k]$$.
+The relevant information was $\EE[\rho(a)]$ for all
+$a\in [k]$.
 
 In contrast, here the algorithm learns how to act.
 Namely, it learns a distribution over actions, 
-$$\pi\colon [k]\to[0,1]$$,
-that seeks to maximize the expected reward:
+$\pi\colon [k]\to[0,1]$,
+that seeks to maximize the expected reward.
+By the law of total expectation, this translates to
 
 $$
-    \mathbb{E}[R_t]
-    =
-    \sum_{a} \pi(a) \rho(a)
+\begin{align}
+    \EE[R_t]
+    &=
+    \EE_{A_t \sim \pi_t}[\EE[R_t \mid A_t]]
+    \\
+    &=
+    \sum_{a} \pi(a) \EE[\rho(a)]
+\end{align}
 $$
 
-
-A convenient way to construct a distribution is using the softmax funciton:
-Define an initial value $$H_1(a) = 0$$ for every action $$a$$. Then let
+A convenient way to construct a distribution is using the softmax function:
+Define an initial value $H_1(a) = 0$ for every action $a$. Then let
 
 $$
 \pi_t(a)
@@ -281,7 +282,7 @@ $$
 {\sum_{a'=1}^{k}e^{H_t(a')}}
 $$
 
-and choose an action randomly by sampling $$\Pr(A_t = a) = \pi(a)$$.
+and choose an action randomly by sampling $\Pr(A_t = a) = \pi(a)$.
 
 Over time, we want to increase the probability of actions that
 yield high rewards. We can do it using gradient ascent:
@@ -293,91 +294,96 @@ H_{t}(a)
 +
 \alpha
 \frac
-{\partial \mathbb{E}[R_t]}
+{\partial \EE[R_t]}
 {\partial H_t(a)}
 $$
 
 Let us compute the last term.
-Let $$\star = \frac{\partial \mathbb{E}[R_t]}{\partial H_t(a)}$$.
+Let $\frac{\partial \EE[R_t]}{\partial H_t(a)} = \star$.
 
 $$
 \begin{align}
-\frac{\partial \mathbb{E}[R_t]}{\partial H_t(a)}
+\star =
+\frac{\partial \EE[R_t]}{\partial H_t(a)}
 &=
-\frac{\partial}{\partial H_t(a)} \sum_{a'\in [k]} \pi_t(a') \rho(a')
+\frac{\partial}{\partial H_t(a)} \sum_{a'\in [k]} \pi_t(a') \EE[\rho(a')]
 \\
 &=
-\sum_{a'\in [k]} \rho(a') \frac{\partial}{\partial H_t(a)} \pi_t(a')  
+\sum_{a'\in [k]} \EE[\rho(a')] \frac{\partial  \pi_t(a')}{\partial H_t(a)}
 \end{align}
 $$
 
-Notice that $$\sum_{a'}\pi_t(a') = 1$$, so the derivative of the sum is $$0$$.
-Hence, we can add any constant to the sum. In addition we can multiply the
-$$a'$$-th term by $$\pi_t(a')/\pi_t(a')$$.
+Notice that $\sum_{a'}\pi_t(a') = 1$, so the derivative of the sum is $0$.
+Hence, we can add any constant to the sum. It can be shown that
 
 $$
-\begin{align}
-\star
-&=
-\sum_{a'\in [k]} 
-(\rho(a') - B_t) 
-\frac{\partial}{\partial H_t(a)} \pi_t(a')
-\frac{\pi_t(a') }{\pi_t(a')}
-\\
-&=
-\sum_{a'\in [k]} 
-\pi_t(a')
-\left[
-    (\rho(a') - B_t) 
-    \frac{\partial}{\partial H_t(a)} \pi_t(a')
-    \frac{1}{\pi_t(a')}
-\right]
-\end{align}
-$$
-
-It can be shown that 
-
-$$
-\frac{\partial}{\partial H_t(a)} \pi_t(a') \frac{1}{\pi_t(a')}
+\frac{\partial \pi_t(a')}{\partial H_t(a)} 
 =
-\mathbf{1}_{[a = a']} - \pi_t(a)
+\pi_t(a) (\mathbb{1}_{[a'=a]} - \pi_t(a'))
+=
+\pi_t(a') (\mathbb{1}_{[a'=a]} - \pi_t(a))
 $$
 
-Thus
+Thus,
 
 $$
 \begin{align}
 \star
 &=
 \sum_{a'\in [k]} 
-\pi_t(a')
+(\EE[\rho(a')] - B_t) 
+\frac{\partial \pi_t(a')}{\partial H_t(a)} 
+\\
+&=
+\sum_{a'\in [k]} 
+(\EE[\rho(a')] - B_t) 
+\pi_t(a') (\mathbb{1}_{[a'=a]} - \pi_t(a))
+\\
+&=
+\EE_{A_t \sim \pi_t}
 \left[
-    (\rho(a') - B_t) 
-    (\mathbf{1}_{[a = a']} - \pi_t(a))
+    (\EE[\rho(A_t)] - B_t) 
+    (\mathbb{1}_{[A_t=a]} - \pi_t(a))
 \right]
 \\
 &=
--\pi_t(a) \sum_{a'\in [k]} \pi_t(a') (\rho(a') - B_t) 
-+
-\pi_t(a)(\rho(a) - B_t) 
+\EE_{A_t \sim \pi_t}
+\left[
+    (\EE[R_t \mid A_t] - B_t) 
+    (\mathbb{1}_{[A_t=a]} - \pi_t(a))
+\right]
 \end{align}
 $$
 
+If we sample an action $a_t\sim\pi_t$ and receive reward $r_t\sim \rho(a_t)$, 
+then 
 
+$$
+    (r_t-B_t)(\mathbb{1}_{[a_t=a]}-\pi_t(a))
+$$
 
-If the reward $$R_t$$ is high, we want to increase the probability of
-taking action $$a$$, namely to increase $$H_t(a)$$. But what counts
-as "high" reward?
+is an unbiased estimator of $\star$. 
 
-We can keep a record of the average reward we received so far,
-which can be computed exacly or incrementally with some choice
-of step size $$\alpha$$. 
-
-We update according to the rule
+Hence the update rule
 
 $$
 \begin{align}
-H_{t+1}(A_t) 
-&= H_t(A_t) + \alpha (R_t - \overline{R}_t)(1- \pi_t(A_t))
+H_{t+1}(a) 
+&= 
+\begin{cases}
+    H_t(a) + \alpha (r_t - B_t)(1- \pi_t(a_t)) & a = a_t
+    \\
+    H_t(a) - \alpha (r_t - B_t)\pi_t(a_t) & a \neq a_t
+\end{cases}
 \end{align}
 $$
+
+A possible good choice for the baseline $B_t$ is an average
+of the rewards received so far, 
+
+$$
+\overline{R}_t = 
+\frac{1}{t} \sum_{i=1}^{t} R_i 
+$$
+
+or some other weighted sum.
