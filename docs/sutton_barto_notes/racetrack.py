@@ -21,11 +21,11 @@ def plot_track(track, fig=None, ax=None, show=False):
     if ax is None:
         ax = fig.get_axes()[0]
     X, Y = np.nonzero(track == 0)
-    ax.scatter(X, Y, marker='s', color="white", edgecolors='k', s=100)
+    ax.scatter(X, Y, marker='s', color="white", edgecolors="k", s=100)
     X, Y = np.nonzero(track == 1)
-    ax.scatter(X, Y, marker='o', color='r')
+    ax.scatter(X, Y, marker='s', color="white", edgecolors="red", s=100)
     X, Y = np.nonzero(track == 2)
-    ax.scatter(X, Y, marker='o', color='g')
+    ax.scatter(X, Y, marker='s', color="white", edgecolors="green", s=100)
     # ax.axis('off')
     if show:
         plt.show(block=False)
@@ -33,9 +33,9 @@ def plot_track(track, fig=None, ax=None, show=False):
         return fig, ax
     # plt.close(fig)
 
-def get_intersecting_tiles(track, pos0, pos1, visualize=False):
-    x0, y0 = pos0
-    x1, y1 = pos1
+def get_line_eq(p0, p1):
+    x0, y0 = p0
+    x1, y1 = p1
 
     # compute line equation a*x + b*y + c = 0
     if x0 == x1:
@@ -50,15 +50,32 @@ def get_intersecting_tiles(track, pos0, pos1, visualize=False):
         a = y1-y0
         b = -(x1-x0)
         c = -(y1*b + x1*a)
-
-    # print("line equation:")
-    # print(f"{a}*x + {b}*y + {c} = 0")
     
+    return a,b,c
+
+def point_line_linf_dist(point, line):
+    """
+    point: (x,y)
+    line: (a,b,c)
+    """
+    a,b,c = line
+    X,Y = point
+    l2_dist = np.abs(a * X + b * Y + c) / (a**2 + b**2)
+    linf_dist = np.maximum(np.abs(a*l2_dist), np.abs(b*l2_dist))
+    return linf_dist
+
+def get_intersecting_tiles(track, pos0, pos1, visualize=False):
+    
+    a, b, c = get_line_eq(pos0, pos1)
+
+    x0, y0 = pos0
+    x1, y1 = pos1
+
     # find intersecting squares
     X, Y = np.meshgrid(range(x0,x1+1), range(y0,y1+1))
-    dist_to_line = np.abs(a * X + b * Y + c) / (a**2 + b**2)
-    l_inf_dist = np.maximum(np.abs(a*dist_to_line), np.abs(b*dist_to_line))
-    intersecting_idx = l_inf_dist <= 0.5
+    linf_dist = point_line_linf_dist((X,Y), (a,b,c))
+
+    intersecting_idx = linf_dist <= 1
     Xi = X[intersecting_idx]
     Yi = Y[intersecting_idx]
 
@@ -98,15 +115,6 @@ class State:
     def get_velocity_array(self):
         return np.array(self.get_velocity(), dtype=np.int32)
 
-    # def set_position(self, px, py):
-    #     self.data = (px, py) + self.get_velocity()
-    
-    # def set_velocity(self, vx, vy):
-    #     self.data = self.get_posistion() + (vx, vy)
-    
-    # def __call__(self):
-    #     return self.data
-
     def __repr__(self):
         return str(self.data)
     
@@ -115,9 +123,6 @@ class State:
 
     def __eq__(self, other):
         return other.data == self.data
-    
-    # def copy(self):
-    #     return State(*self.data)
 
 class RaceTrackEnv:
 
@@ -130,7 +135,6 @@ class RaceTrackEnv:
         self.rng = np.random.default_rng(seed)
         self.velocity = None
         self.position = None
-        self.end_state = True
         self.start_state()
     
     def set_position(self, x, y):
@@ -143,10 +147,9 @@ class RaceTrackEnv:
         self.set_velocity(0,0)
         px, py = self.rng.choice(self.start_positions)
         self.set_position(px, py)
-        self.end_state = False
     
-    def episode_end(self):
-        return self.end_state
+    def is_end_state(self, state):
+        return state.get_position() in self.finish_positions
     
     @staticmethod
     def project_state(state, action):
@@ -164,6 +167,8 @@ class RaceTrackEnv:
         assert set(action) <= set([-1,1,0])
 
         proj_st = RaceTrackEnv.project_state(self.get_state(), action)
+        vx, vy = proj_st.get_velocity()
+        self.set_velocity(vx, vy)
 
         new_pos = proj_st.get_position_array()
 
@@ -175,6 +180,8 @@ class RaceTrackEnv:
             p1x, p1y = p1
             return ((p1x-p0x)**2 + (p1y-p0y)**2)**(1/2)
         intersect_tiles.sort(key=dist_to_current_pos)
+
+        line_eq = get_line_eq(self.position, new_pos)
         
         for x,y in intersect_tiles:
             
@@ -182,8 +189,7 @@ class RaceTrackEnv:
                 self.start_state()
                 return -1
             
-            elif (x,y) in self.finish_positions:
-                self.end_state = True
+            elif (x,y) in self.finish_positions and point_line_linf_dist((x,y),line_eq) < 0.5:
                 self.set_position(x,y)
                 return 0
             
@@ -194,8 +200,6 @@ class RaceTrackEnv:
         else:
             x, y = new_pos
             self.set_position(x,y)
-            vx, vy = proj_st.get_velocity()
-            self.set_velocity(vx, vy)
             return -1
         
     def get_state(self):
@@ -207,7 +211,7 @@ class RaceTrackEnv:
         plt.ion()
         self.fig, self.ax = plot_track(self.track)
         self.artists = []
-        self.cur_line, = self.ax.plot([],[], "x", color="blue")
+        self.positions = []
         self.lines = []
         plt.show()
     
@@ -222,6 +226,15 @@ class RaceTrackEnv:
         p0x, p0y = st.get_position()
         self.cur_line.set_xdata([p0x])
         self.cur_line.set_ydata([p0y])
+
+        new_pos, = self.ax.plot([p0x], [p0y])
+        self.positions.append(new_pos)
+
+        # update colors
+        P = len(self.positions)
+        cmap = colormaps.get_cmap('Blues')
+        for i, pos in enumerate(self.positions):
+            pos.set_color(cmap((i+0.5)/P))
 
         proj_st = RaceTrackEnv.project_state(st, at)
         if sum(proj_st.get_velocity()) > 0:
@@ -299,8 +312,8 @@ class GamePlay:
         plt.ion()
         self.fig, self.ax = plot_track(self.env.track)
         self.artists = []
-        self.cur_line, = self.ax.plot([],[], "x", color="blue")
         self.lines = []
+        self.positions = []
         plt.show()
     
     def render_update(self, st, at):
@@ -314,11 +327,18 @@ class GamePlay:
         print(self.cur_episode[-1])
 
         p0x, p0y = st.get_position()
-        self.cur_line.set_xdata([p0x])
-        self.cur_line.set_ydata([p0y])
+
+        new_pos, = self.ax.plot([p0x], [p0y], "x", zorder=100)
+        self.positions.append(new_pos)
+
+        # update colors
+        P = len(self.positions)
+        cmap = colormaps.get_cmap('Blues')
+        for i, pos in enumerate(self.positions):
+            pos.set_color(cmap((i+0.5)/P))
 
         proj_st = RaceTrackEnv.project_state(st, at)
-        if sum(proj_st.get_velocity()) > 0:
+        if sum(proj_st.get_velocity()) > 0 and not self.env.is_end_state(st):
             p1x, p1y = proj_st.get_position()
             new_line, = self.ax.plot([p0x, p1x], [p0y, p1y], zorder=0)
             self.lines.append(new_line)
@@ -340,10 +360,12 @@ class GamePlay:
         if render:
             self.render_init()
 
-        episode = []
         rt = None
-        while not self.env.episode_end():
+        while True:
             st = self.env.get_state()
+            if self.env.is_end_state(st):
+                break
+
             at = ACTIONS[self.rng.choice(len(ACTIONS), p=policy(st))]
             self.cur_episode.append(EpisodeStep(rt, st, at))
 
@@ -379,7 +401,7 @@ class OffPolicyMCControlLearner:
         self.discount_factor = discount_factor
         self.Q = dict() # state*action -> value
         self.C = dict() # state*action -> value
-        self.policy = RaceTrackEpsilonGreedyPolicy(eps=0)
+        self.policy = RaceTrackEpsilonGreedyPolicy()
         self.gp = GamePlay(env)
     
     def learn_episode(self, b_policy=None):
@@ -445,8 +467,6 @@ def off_polilcy_MC_control(racetrack_env, discount_factor=0.9, seed=None):
                 C[st] = {a: 0 for a in ACTIONS}
             if st not in Q:
                 Q[st] = {a: 0 for a in ACTIONS}
-            # if st not in policy:
-            #     policy.set_action(st, 0)
             
             C[st][at] += W
             Q[st][at] += W/C[st][at] * (G - Q[st][at])

@@ -7,8 +7,8 @@ from racetrack import RaceTrackEnv, GamePlay, plot_track, RaceTrackRandomPolicy,
 from tqdm import tqdm
 
 
-N = 3
-k = 1
+N = 15
+k = 7
 track = np.zeros([N,N], dtype=np.int32)
 track[0] = 1
 track[:,-1] = 2
@@ -19,23 +19,13 @@ plot_track(track, show=True)
 env = RaceTrackEnv(track)
 gp = GamePlay(env)
 
-learner = OffPolicyMCControlLearner(env)
-for i in range(1,1001):
-    learner.learn_episode()
+learner = OffPolicyMCControlLearner(env, discount_factor=1)
+learner.policy.set_eps(0.2)
+for i in range(1,4001):
+    learner.learn_episode(learner.policy)
     if i % 100 == 0:
         print(i, sum(len(vals) for vals in learner.Q.values()))
 
-for key,vals in learner.Q.items():
-    print(key)
-    print(vals)
-
-learner.gp.play_episode(learner.policy, render=True)
-
-
-# import pdb; pdb.set_trace()
-
-# # policy = RaceTrackRandomPolicy()
-# # gp.play_episode(policy, render=False)
-# policy = off_polilcy_MC_control(env)
-# gp = GamePlay(env)
-# gp.play_episode(policy, render=True)
+learner.policy.set_eps(0)
+for i in range(5):
+    learner.gp.play_episode(learner.policy, render=True)
